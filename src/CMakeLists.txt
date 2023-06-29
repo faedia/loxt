@@ -1,6 +1,7 @@
 set(
     HEADER_LIST
     "${Loxt_SOURCE_DIR}/include/loxt/lexer.hpp"
+    "${Loxt_SOURCE_DIR}/include/loxt/ast/expr.hpp"
     "${Loxt_SOURCE_DIR}/include/loxt/token_kinds.def"
 )
 
@@ -21,4 +22,4 @@ source_group(
 )
 
 set_target_properties(loxt_library PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY}")
-target_link_libraries(loxt_library PRIVATE fmt::fmt)
+target_link_libraries(loxt_library PRIVATE fmt::fmt INTERFACE treeceratops)

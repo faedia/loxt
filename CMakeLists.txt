@@ -54,6 +54,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmt)
 
+FetchContent_Declare(
+    treeceratops
+    GIT_REPOSITORY https://github.com/steventomlinson/treeceratops.git
+    GIT_TAG main
+)
+FetchContent_MakeAvailable(treeceratops)
+
 add_subdirectory(src)
 add_subdirectory(driver)
 
