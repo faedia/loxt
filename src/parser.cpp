@@ -33,53 +33,157 @@ auto token_kind_bop_kind(TokenKind kind) -> BinaryOpKind {
   }
 }
 
+auto token_kind_uop_kind(TokenKind kind) -> UnaryOpKind {
+  switch (kind.kind()) {
+    case TokenKind::Kind::Bang:
+      return UnaryOpKind::Not;
+    case TokenKind::Kind::Minus:
+      return UnaryOpKind::Neg;
+    default:
+      throw "Invalid binary operator";
+  }
+}
+
 template <class T>
 auto check(TokenList::Iterator& token, T kind) -> bool {
   return token->kind == kind;
 }
 
-template <class T, class... Targs>
-auto check(TokenList::Iterator& token, T kind, Targs... args) -> bool {
+template <class T, class... TArgs>
+auto check(TokenList::Iterator& token, T kind, TArgs... args) -> bool {
   if (token->kind == kind) {
     return true;
   }
   return check(token, args...);
 }
 
-template <class T, class... Targs>
-auto match(TokenList::Iterator& token, T kind, Targs... args) -> bool {
-  if (check(token, kind, args...)) {
-    ++token;
-    return true;
-  }
-  return false;
-}
-
 Parser::Parser(std::shared_ptr<TokenList> tokens)
     : tokens_{std::move(tokens)}, current_{tokens_->begin()}, tree_{} {}
 
+auto Parser::expression(ExprTree::iterator parent) -> ExprTree::iterator {
+  return equality(parent);
+}
+
 auto Parser::equality(ExprTree::iterator parent) -> ExprTree::iterator {
-  auto lhs = primary(parent);
+  auto lhs = comparison(parent);
   while (check(current_, TokenKind::BangEqual(), TokenKind::EqualEqual())) {
     auto bop = token_kind_bop_kind(current_->kind);
     ++current_;
     tree_.push_child(parent, ExprData{ExprKind::Binary, bop});
     auto current = tree_.last_child(parent);
     tree_.make_parent(current, lhs);
-    primary(current);
+    comparison(current);
     lhs = current;
   }
 
   return lhs;
 }
 
+auto Parser::comparison(ExprTree::iterator parent) -> ExprTree::iterator {
+  auto lhs = term(parent);
+
+  while (check(current_, TokenKind::Greater(), TokenKind::GreaterEqual(),
+               TokenKind::Less(), TokenKind::LessEqual())) {
+    auto bop = token_kind_bop_kind(current_->kind);
+    ++current_;
+    tree_.push_child(parent, ExprData{ExprKind::Binary, bop});
+    auto current = tree_.last_child(parent);
+    tree_.make_parent(current, lhs);
+    term(current);
+    lhs = current;
+  }
+
+  return lhs;
+}
+
+auto Parser::term(ExprTree::iterator parent) -> ExprTree::iterator {
+  auto lhs = factor(parent);
+
+  while (check(current_, TokenKind::Minus(), TokenKind::Plus())) {
+    auto bop = token_kind_bop_kind(current_->kind);
+    ++current_;
+    tree_.push_child(parent, ExprData{ExprKind::Binary, bop});
+    auto current = tree_.last_child(parent);
+    tree_.make_parent(current, lhs);
+    factor(current);
+    lhs = current;
+  }
+
+  return lhs;
+}
+
+auto Parser::factor(ExprTree::iterator parent) -> ExprTree::iterator {
+  auto lhs = unary(parent);
+
+  while (check(current_, TokenKind::BackSlash(), TokenKind::Asterisk())) {
+    auto bop = token_kind_bop_kind(current_->kind);
+    ++current_;
+    tree_.push_child(parent, ExprData{ExprKind::Binary, bop});
+    auto current = tree_.last_child(parent);
+    tree_.make_parent(current, lhs);
+    unary(current);
+    lhs = current;
+  }
+
+  return lhs;
+}
+
+auto Parser::unary(ExprTree::iterator parent) -> ExprTree::iterator {
+  if (check(current_, TokenKind::Bang(), TokenKind::Minus())) {
+    auto uop = token_kind_uop_kind(current_->kind);
+    ++current_;
+    tree_.push_child(parent, ExprData{ExprKind::Unary, uop});
+    parent = tree_.last_child(parent);
+    unary(parent);
+    return parent;
+  }
+  return primary(parent);
+}
+
 auto Parser::primary(ExprTree::iterator parent) -> ExprTree::iterator {
+  if (check(current_, TokenKind::Nil())) {
+    tree_.push_child(parent, ExprData{ExprKind::Nil});
+    ++current_;
+    return tree_.last_child(parent);
+  }
+  if (check(current_, TokenKind::False())) {
+    tree_.push_child(parent,
+                     ExprData{ExprKind::Literal, LiteralKind::Bool, false});
+    ++current_;
+    return tree_.last_child(parent);
+  }
+  if (check(current_, TokenKind::True())) {
+    tree_.push_child(parent,
+                     ExprData{ExprKind::Literal, LiteralKind::Bool, true});
+    ++current_;
+    return tree_.last_child(parent);
+  }
+  if (check(current_, TokenKind::Number())) {
+    tree_.push_child(parent, ExprData{ExprKind::Literal, LiteralKind::Number,
+                                      current_->literal});
+    ++current_;
+    return tree_.last_child(parent);
+  }
   if (check(current_, TokenKind::String())) {
     tree_.push_child(parent, ExprData{ExprKind::Literal, LiteralKind::String,
                                       current_->literal});
     ++current_;
     return tree_.last_child(parent);
   }
+
+  if (check(current_, TokenKind::LeftParen())) {
+    ++current_;
+    tree_.push_child(parent, ExprData{ExprKind::Paren});
+    parent = tree_.last_child(parent);
+    expression(parent);
+    if (check(current_, TokenKind::RightParen())) {
+      ++current_;
+      return parent;
+    } else {
+      throw "hanging parent";
+    }
+  }
+
   throw "Failed to parse expr";
 }
 

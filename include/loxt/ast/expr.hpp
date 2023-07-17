@@ -6,7 +6,7 @@
 
 namespace loxt {
 
-enum class ExprKind { Root, Binary, Paren, Literal, Unary };
+enum class ExprKind { Root, Binary, Paren, Literal, Unary, Nil };
 
 enum class BinaryOpKind {
   Or,
@@ -22,34 +22,8 @@ enum class BinaryOpKind {
   Div,
   Mul
 };
-inline auto to_string(BinaryOpKind kind) -> std::string {
-  switch (kind) {
-    case BinaryOpKind::Or:
-      return "Or";
-    case BinaryOpKind::And:
-      return "And";
-    case BinaryOpKind::Eq:
-      return "Eq";
-    case BinaryOpKind::Neq:
-      return "Neq";
-    case BinaryOpKind::Gt:
-      return "Gt";
-    case BinaryOpKind::Ge:
-      return "Ge";
-    case BinaryOpKind::Lt:
-      return "Lt";
-    case BinaryOpKind::Le:
-      return "Le";
-    case BinaryOpKind::Minus:
-      return "Minus";
-    case BinaryOpKind::Add:
-      return "Add";
-    case BinaryOpKind::Div:
-      return "Div";
-    case BinaryOpKind::Mul:
-      return "Mul";
-  }
-}
+
+auto to_string(BinaryOpKind kind) -> std::string;
 
 enum class UnaryOpKind { Not, Neg };
 
@@ -73,15 +47,15 @@ struct ExprData {
     };
   };
 
-  explicit ExprData(ExprKind inkind, BinaryOpKind b_op)
-      : kind{inkind}, bOp{b_op} {}
-  explicit ExprData(ExprKind inkind, LiteralKind l_kind, Literal lit)
-      : kind{inkind}, literalKind{l_kind}, literalVal(lit) {}
-  explicit ExprData(ExprKind inkind, LiteralKind l_kind, bool lit)
-      : kind{inkind}, literalKind{l_kind}, boolVal{lit} {}
-  explicit ExprData(ExprKind inkind, UnaryOpKind u_op)
-      : kind{inkind}, uOp{u_op} {}
-  explicit ExprData(ExprKind inkind) : kind{inkind} {}
+  explicit ExprData(ExprKind in_kind, BinaryOpKind b_op)
+      : kind{in_kind}, bOp{b_op} {}
+  explicit ExprData(ExprKind in_kind, LiteralKind l_kind, Literal lit)
+      : kind{in_kind}, literalKind{l_kind}, literalVal(lit) {}
+  explicit ExprData(ExprKind in_kind, LiteralKind l_kind, bool lit)
+      : kind{in_kind}, literalKind{l_kind}, boolVal{lit} {}
+  explicit ExprData(ExprKind in_kind, UnaryOpKind u_op)
+      : kind{in_kind}, uOp{u_op} {}
+  explicit ExprData(ExprKind in_kind) : kind{in_kind} {}
 };
 
 using ExprTree = treeceratops::tree<ExprData>;
@@ -90,16 +64,22 @@ class Expr;
 class RootExpr;
 class BinaryExpr;
 class ParenExpr;
-class LiteralExpr;
+class NumberExpr;
+class StringExpr;
+class BoolExpr;
 class UnaryExpr;
+class NilExpr;
 
 class Visitor {
  public:
   virtual void visit(RootExpr& expr) = 0;
   virtual void visit(BinaryExpr& expr) = 0;
   virtual void visit(ParenExpr& expr) = 0;
-  virtual void visit(LiteralExpr& expr) = 0;
+  virtual void visit(NumberExpr& expr) = 0;
+  virtual void visit(StringExpr& expr) = 0;
+  virtual void visit(BoolExpr& expr) = 0;
   virtual void visit(UnaryExpr& expr) = 0;
+  virtual void visit(NilExpr& expr) = 0;
 };
 
 class Expr {
@@ -141,12 +121,19 @@ class ParenExpr : public Expr {
   }
 };
 
-class LiteralExpr : public Expr {
+class NumberExpr : public Expr {
  public:
   [[nodiscard]] auto literal() const -> Literal { return node_->literalVal; }
-  [[nodiscard]] auto l_kind() const -> LiteralKind {
-    return node_->literalKind;
-  }
+};
+
+class StringExpr : public Expr {
+ public:
+  [[nodiscard]] auto literal() const -> Literal { return node_->literalVal; }
+};
+
+class BoolExpr : public Expr {
+ public:
+  [[nodiscard]] auto literal() const -> bool { return node_->boolVal; }
 };
 
 class UnaryExpr : public Expr {
@@ -156,5 +143,7 @@ class UnaryExpr : public Expr {
   }
   [[nodiscard]] auto op_kind() const -> UnaryOpKind { return node_->uOp; }
 };
+
+class NilExpr : public Expr {};
 
 }  // namespace loxt
