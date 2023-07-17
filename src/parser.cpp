@@ -179,9 +179,8 @@ auto Parser::primary(ExprTree::iterator parent) -> ExprTree::iterator {
     if (check(current_, TokenKind::RightParen())) {
       ++current_;
       return parent;
-    } else {
-      throw "hanging parent";
     }
+    throw "hanging parent";
   }
 
   throw "Failed to parse expr";
