@@ -30,18 +30,19 @@ class PrinterVisitor : public Visitor {
     std::cout << ')';
   }
 
-  void visit(LiteralExpr& expr) override {
-    switch (expr.l_kind()) {
-      case LiteralKind::String:
-        std::cout << tokens_->string_literal(expr.literal());
-        break;
-      case LiteralKind::Number:
-        std::cout << tokens_->number_literal(expr.literal());
-        break;
+  void visit(NumberExpr& expr) override {
+    std::cout << tokens_->number_literal(expr.literal());
+  }
 
-      default:
-        std::cout << "false";
-    }
+  void visit(StringExpr& expr) override {
+    std::cout << tokens_->string_literal(expr.literal());
+  }
+
+  void visit(BoolExpr& expr) override {
+    if (expr.literal())
+      std::cout << "true";
+    else
+      std::cout << "false";
   }
 
   void visit(UnaryExpr& expr) override {
@@ -51,6 +52,8 @@ class PrinterVisitor : public Visitor {
     std::cout << ' ';
     std::cout << ')';
   }
+
+  void visit(NilExpr& expr) override { std::cout << "nil"; }
 
  private:
   std::shared_ptr<TokenList> tokens_;
@@ -82,7 +85,8 @@ TEST(LexerTest, LexerTest1) {
 }
 
 TEST(ParserTest, parserTest) {
-  std::string str = "\"123\" == \"Hello\" != \"World\" == \"outer string\"";
+  std::string str =
+      "\"123\" == \"Hello\" != \"World\" == \"outer string\" + !\"fsdd\")";
   auto toks = loxt::lex(str);
   loxt::Parser parser{toks};
   parser.parse();
@@ -90,4 +94,20 @@ TEST(ParserTest, parserTest) {
   loxt::Expr expr{parser.tree(), parser.tree().begin()};
   printer.print(expr);
   std::cout << '\n';
+}
+
+TEST(ParserTest, parserTest1) {
+  try {
+    std::string str = "1 + (2 == 5) / 7 == nil";
+    auto toks = loxt::lex(str);
+    loxt::Parser parser{toks};
+    parser.parse();
+    loxt::PrinterVisitor printer(toks);
+    loxt::Expr expr{parser.tree(), parser.tree().begin()};
+    printer.print(expr);
+    std::cout << '\n';
+  } catch (const char* err) {
+    std::cout << err;
+  }
+  // GTEST_FAIL();
 }
