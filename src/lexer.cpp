@@ -1,15 +1,13 @@
-#include <fmt/core.h>
-
 #include <cctype>
-#include <iostream>
+#include <format>
 #include <loxt/lexer.hpp>
-#include <unordered_set>
+#include <print>
 
 namespace loxt {
 
 namespace {
 auto report(SourceLocation loc, const std::string& error_text) -> void {
-  fmt::print("{}:{}: Error: {}\n", loc.line, loc.column, error_text);
+  std::println("{}:{}: Error: {}\n", loc.line, loc.column, error_text);
 }
 
 const std::string TokenNames[] = {
@@ -79,7 +77,7 @@ inline auto match(char expected, const std::string& source, SourceLocation& loc)
 auto lex(const std::string& source) -> std::shared_ptr<TokenList> {
   auto list = std::shared_ptr<TokenList>(new TokenList(source));
 
-  SourceLocation loc{1, 1, source.begin()};
+  SourceLocation loc{.line = 1, .column = 1, .pos = source.begin()};
 
   while (loc.pos != source.end()) {
     SourceLocation start_loc = loc;
@@ -201,7 +199,7 @@ auto lex(const std::string& source) -> std::shared_ptr<TokenList> {
           }
         } else if (std::isspace(chr) == 0) {
           list->m_Tokens.emplace_back(TokenKind::Error(), start_loc, 0);
-          report(start_loc, fmt::format("Unrecognized character '{}'", chr));
+          report(start_loc, std::format("Unrecognized character '{}'", chr));
           list->m_HasError = true;
         }
     }

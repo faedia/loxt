@@ -57,8 +57,8 @@ auto check(TokenList::Iterator& token, T kind, TArgs... args) -> bool {
   return check(token, args...);
 }
 
-Parser::Parser(std::shared_ptr<TokenList> tokens)
-    : tokens_{std::move(tokens)}, current_{tokens_->begin()}, tree_{} {}
+Parser::Parser(const std::shared_ptr<TokenList>& tokens)
+    : tokens_{tokens}, current_{tokens_->begin()}, tree_{} {}
 
 auto Parser::expression(ExprTree::iterator parent) -> ExprTree::iterator {
   return equality(parent);

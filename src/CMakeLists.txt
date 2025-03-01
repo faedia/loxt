@@ -25,4 +25,4 @@ source_group(
 )
 
 set_target_properties(loxt_library PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY}")
-target_link_libraries(loxt_library PRIVATE fmt::fmt PUBLIC treeceratops)
+target_link_libraries(loxt_library PUBLIC treeceratops)

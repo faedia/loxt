@@ -144,10 +144,7 @@ class TokenList {
   using Iterator = StaticVector<Token>::Iterator;
 
   [[nodiscard]] auto begin() -> Iterator { return m_Tokens.begin(); }
-  // [[nodiscard]] auto begin() const -> ConstIterator { return
-  // m_Tokens.begin(); }
   [[nodiscard]] auto end() -> Iterator { return m_Tokens.end(); }
-  // [[nodiscard]] auto end() const -> ConstIterator { return m_Tokens.end(); }
 
   [[nodiscard]] auto size() const -> std::size_t { return m_Tokens.size(); }
 

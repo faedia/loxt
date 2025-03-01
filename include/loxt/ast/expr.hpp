@@ -1,14 +1,15 @@
 #pragma once
 
+#include <cstdint>
 #include <treeceratops/tree.hpp>
 
 #include "../lexer.hpp"
 
 namespace loxt {
 
-enum class ExprKind { Root, Binary, Paren, Literal, Unary, Nil };
+enum class ExprKind : std::uint8_t { Root, Binary, Paren, Literal, Unary, Nil };
 
-enum class BinaryOpKind {
+enum class BinaryOpKind : std::uint8_t {
   Or,
   And,
   Eq,
@@ -25,9 +26,9 @@ enum class BinaryOpKind {
 
 auto to_string(BinaryOpKind kind) -> std::string;
 
-enum class UnaryOpKind { Not, Neg };
+enum class UnaryOpKind : std::uint8_t { Not, Neg };
 
-enum class LiteralKind { String, Number, Bool };
+enum class LiteralKind : std::uint8_t { String, Number, Bool };
 
 struct ExprData {
   ExprKind kind;

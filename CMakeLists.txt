@@ -11,11 +11,13 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(CMAKE_CXX_EXTENSIONS OFF)
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
     if(NOT CMAKE_BUILD_TYPE)
         set(CMAKE_BUILD_TYPE Release)
     endif()
 
-    set(CMAKE_CXX_STANDARD 20)
+    set(CMAKE_CXX_STANDARD 23)
 
     include(CTest)
 
@@ -48,15 +50,8 @@ set(
 )
 
 FetchContent_Declare(
-    fmt
-    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG 9.1.0
-)
-FetchContent_MakeAvailable(fmt)
-
-FetchContent_Declare(
     treeceratops
-    GIT_REPOSITORY https://github.com/steventomlinson/treeceratops.git
+    GIT_REPOSITORY https://github.com/faedia/treeceratops.git
     GIT_TAG main
 )
 FetchContent_MakeAvailable(treeceratops)

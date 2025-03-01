@@ -5,14 +5,14 @@ namespace loxt {
 
 class Parser {
  public:
-  explicit Parser(std::shared_ptr<TokenList> tokens);
+  explicit Parser(const std::shared_ptr<TokenList>& tokens);
 
   auto tree() -> ExprTree& { return tree_; }
 
   void parse() {
     tree_.push_root(ExprData{ExprKind::Root});
     auto root = tree_.begin();
-    equality(root);
+    expression(root);
   }
 
  private:

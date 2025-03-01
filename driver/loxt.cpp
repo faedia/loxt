@@ -1,9 +1,7 @@
 #include <argparse/argparse.hpp>
 #include <cstdlib>
-#include <exception>
 #include <fstream>
 #include <iostream>
-#include <istream>
 #include <loxt/lexer.hpp>
 #include <sstream>
 #include <string>
@@ -18,7 +16,7 @@ auto run_file(const std::string& path) -> void {
   }
   auto toks = loxt::lex(contents);
   for (const auto& tok : *toks) {
-    std::cout << toks->to_string(tok) << std::endl;
+    std::cout << toks->to_string(tok) << '\n';
   }
   std::cout << toks->has_error() << '\n';
 }
@@ -29,7 +27,7 @@ auto run_interpreter() -> void {
     std::cout << "loxt> ";
     std::getline(std::cin, line);
     for (auto toks = loxt::lex(line); auto tok : *toks) {
-      std::cout << toks->to_string(tok) << std::endl;
+      std::cout << toks->to_string(tok) << '\n';
     }
   }
 }
@@ -41,7 +39,7 @@ auto main(int argc, char const* argv[]) -> int {
   try {
     program.parse_args(argc, argv);
   } catch (const std::runtime_error& err) {
-    std::cerr << err.what() << std::endl;
+    std::cerr << err.what() << '\n';
     std::cerr << program;
     std::exit(EXIT_FAILURE);
   }

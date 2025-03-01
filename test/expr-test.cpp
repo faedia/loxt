@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include <print>
+
 #include "loxt/lexer.hpp"
 #include "loxt/parser.hpp"
 
@@ -9,54 +11,58 @@ namespace loxt {
 
 class PrinterVisitor : public Visitor {
  public:
-  PrinterVisitor(const std::shared_ptr<TokenList>& tokens) : tokens_(tokens) {}
+  explicit PrinterVisitor(const std::shared_ptr<TokenList>& tokens)
+      : tokens_(tokens) {}
 
   void print(Expr& expr) { expr.accept(*this); }
 
   void visit(RootExpr& expr) override { expr.expr().accept(*this); }
 
   void visit(BinaryExpr& expr) override {
-    std::cout << '(';
-    std::cout << to_string(expr.op_kind()) << ' ';
+    std::println("{}BinaryExpr {}", std::string(4 * depth_, ' '),
+                 to_string(expr.op_kind()));
+    depth_++;
     expr.lhs().accept(*this);
-    std::cout << ' ';
     expr.rhs().accept(*this);
-    std::cout << ')';
+    depth_--;
   }
 
   void visit(ParenExpr& expr) override {
-    std::cout << '(';
+    std::println("{}ParenExpr", std::string(4 * depth_, ' '));
+    depth_++;
     expr.expr().accept(*this);
-    std::cout << ')';
+    depth_--;
   }
 
   void visit(NumberExpr& expr) override {
-    std::cout << tokens_->number_literal(expr.literal());
+    std::println("{}NumberExpr {}", std::string(4 * depth_, ' '),
+                 tokens_->number_literal(expr.literal()));
   }
 
   void visit(StringExpr& expr) override {
-    std::cout << tokens_->string_literal(expr.literal());
+    std::println("{}StringExpr {}", std::string(4 * depth_, ' '),
+                 tokens_->string_literal(expr.literal()));
   }
 
   void visit(BoolExpr& expr) override {
-    if (expr.literal())
-      std::cout << "true";
-    else
-      std::cout << "false";
+    std::println("{}BoolExpr {}", std::string(4 * depth_, ' '), expr.literal());
   }
 
   void visit(UnaryExpr& expr) override {
-    std::cout << '(';
-    std::cout << static_cast<int>(expr.op_kind()) << ' ';
+    std::println("{}UnaryExpr {}", std::string(4 * depth_, ' '),
+                 static_cast<int>(expr.op_kind()));
+    depth_++;
     expr.expr().accept(*this);
-    std::cout << ' ';
-    std::cout << ')';
+    depth_--;
   }
 
-  void visit(NilExpr& expr) override { std::cout << "nil"; }
+  void visit(NilExpr& expr) override {
+    std::println("{}NilExpr", std::string(4 * depth_, ' '));
+  }
 
  private:
   std::shared_ptr<TokenList> tokens_;
+  int depth_{0};
 };
 }  // namespace loxt
 
@@ -66,12 +72,12 @@ TEST(LexerTest, LexerTest1) {
   loxt::ExprTree tree;
 
   tree.push_root(
-      loxt::ExprData{loxt::ExprKind::Binary, {loxt::BinaryOpKind::Mul}});
+      loxt::ExprData{loxt::ExprKind::Binary, loxt::BinaryOpKind::Mul});
 
   loxt::ExprData edata1{loxt::ExprKind::Literal, loxt::LiteralKind::Number,
-                        (loxt::Literal)0};
+                        static_cast<loxt::Literal>(0)};
   loxt::ExprData edata2{loxt::ExprKind::Literal, loxt::LiteralKind::Number,
-                        (loxt::Literal)1};
+                        static_cast<loxt::Literal>(1)};
 
   tree.push_child(tree.begin(), edata1);
   tree.push_child(tree.begin(), edata2);
@@ -81,19 +87,17 @@ TEST(LexerTest, LexerTest1) {
   loxt::Expr rExpr{tree, tree.begin()};
 
   printer.print(rExpr);
-  std::cout << '\n';
 }
 
 TEST(ParserTest, parserTest) {
   std::string str =
-      "\"123\" == \"Hello\" != \"World\" == \"outer string\" + !\"fsdd\")";
+      R"("123" == "Hello" != "World" == "outer string" + !"fsdd"))";
   auto toks = loxt::lex(str);
   loxt::Parser parser{toks};
   parser.parse();
   loxt::PrinterVisitor printer(toks);
   loxt::Expr expr{parser.tree(), parser.tree().begin()};
   printer.print(expr);
-  std::cout << '\n';
 }
 
 TEST(ParserTest, parserTest1) {
@@ -105,9 +109,8 @@ TEST(ParserTest, parserTest1) {
     loxt::PrinterVisitor printer(toks);
     loxt::Expr expr{parser.tree(), parser.tree().begin()};
     printer.print(expr);
-    std::cout << '\n';
+    SUCCEED() << "Completed without error.";
   } catch (const char* err) {
     std::cout << err;
   }
-  // GTEST_FAIL();
 }
