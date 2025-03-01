@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -86,11 +87,11 @@ class StaticVector {
 };
 
 class TokenKind {
+ public:
   enum class Kind : uint8_t {
 #define LOXT_TOKEN(name) name,
 #include "token_kinds.def"
   };
- public:
 #define LOXT_TOKEN(name) \
   static constexpr auto name()->TokenKind { return TokenKind(Kind::name); }
 #include "token_kinds.def"
@@ -106,6 +107,8 @@ class TokenKind {
   }
 
   [[nodiscard]] auto name() const -> const std::string&;
+
+  [[nodiscard]] auto kind() const -> Kind { return m_Kind; }
 
  private:
   constexpr explicit TokenKind(Kind kind) : m_Kind(kind) {}
@@ -181,9 +184,9 @@ class TokenList {
 
   const std::string& m_Source;
 
-  friend auto lex(const std::string& source) -> TokenList;
+  friend auto lex(const std::string& source) -> std::shared_ptr<TokenList>;
 };
 
-auto lex(const std::string& source) -> TokenList;
+auto lex(const std::string& source) -> std::shared_ptr<TokenList>;
 
 }  // namespace loxt

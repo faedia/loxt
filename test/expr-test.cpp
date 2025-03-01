@@ -3,18 +3,21 @@
 #include <gtest/gtest.h>
 
 #include "loxt/lexer.hpp"
+#include "loxt/parser.hpp"
 
 namespace loxt {
 
 class PrinterVisitor : public Visitor {
  public:
-  PrinterVisitor(TokenList& tokens) : tokens_(tokens) {}
+  PrinterVisitor(const std::shared_ptr<TokenList>& tokens) : tokens_(tokens) {}
 
   void print(Expr& expr) { expr.accept(*this); }
 
+  void visit(RootExpr& expr) override { expr.expr().accept(*this); }
+
   void visit(BinaryExpr& expr) override {
     std::cout << '(';
-    std::cout << static_cast<int>(expr.op_kind()) << ' ';
+    std::cout << to_string(expr.op_kind()) << ' ';
     expr.lhs().accept(*this);
     std::cout << ' ';
     expr.rhs().accept(*this);
@@ -28,7 +31,17 @@ class PrinterVisitor : public Visitor {
   }
 
   void visit(LiteralExpr& expr) override {
-    std::cout << tokens_.number_literal(expr.literal());
+    switch (expr.l_kind()) {
+      case LiteralKind::String:
+        std::cout << tokens_->string_literal(expr.literal());
+        break;
+      case LiteralKind::Number:
+        std::cout << tokens_->number_literal(expr.literal());
+        break;
+
+      default:
+        std::cout << "false";
+    }
   }
 
   void visit(UnaryExpr& expr) override {
@@ -40,7 +53,7 @@ class PrinterVisitor : public Visitor {
   }
 
  private:
-  TokenList& tokens_;
+  std::shared_ptr<TokenList> tokens_;
 };
 }  // namespace loxt
 
@@ -49,17 +62,13 @@ TEST(LexerTest, LexerTest1) {
   auto toks = loxt::lex(str);
   loxt::ExprTree tree;
 
-  tree.push_root({loxt::ExprKind::Binary, {loxt::BinaryOpKind::Mul}});
+  tree.push_root(
+      loxt::ExprData{loxt::ExprKind::Binary, {loxt::BinaryOpKind::Mul}});
 
-  loxt::ExprData edata1;
-  edata1.kind = loxt::ExprKind::Literal;
-  edata1.literalKind = loxt::LiteralKind::Number;
-  edata1.literalVal = 0;
-
-  loxt::ExprData edata2;
-  edata2.kind = loxt::ExprKind::Literal;
-  edata2.literalKind = loxt::LiteralKind::Number;
-  edata2.literalVal = 1;
+  loxt::ExprData edata1{loxt::ExprKind::Literal, loxt::LiteralKind::Number,
+                        (loxt::Literal)0};
+  loxt::ExprData edata2{loxt::ExprKind::Literal, loxt::LiteralKind::Number,
+                        (loxt::Literal)1};
 
   tree.push_child(tree.begin(), edata1);
   tree.push_child(tree.begin(), edata2);
@@ -69,5 +78,16 @@ TEST(LexerTest, LexerTest1) {
   loxt::Expr rExpr{tree, tree.begin()};
 
   printer.print(rExpr);
+  std::cout << '\n';
+}
+
+TEST(ParserTest, parserTest) {
+  std::string str = "\"123\" == \"Hello\" != \"World\" == \"outer string\"";
+  auto toks = loxt::lex(str);
+  loxt::Parser parser{toks};
+  parser.parse();
+  loxt::PrinterVisitor printer(toks);
+  loxt::Expr expr{parser.tree(), parser.tree().begin()};
+  printer.print(expr);
   std::cout << '\n';
 }

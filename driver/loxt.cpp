@@ -17,10 +17,10 @@ auto run_file(const std::string& path) -> void {
     contents = stream.str();
   }
   auto toks = loxt::lex(contents);
-  for (const auto& tok : loxt::lex(contents)) {
-    std::cout << toks.to_string(tok) << std::endl;
+  for (const auto& tok : *toks) {
+    std::cout << toks->to_string(tok) << std::endl;
   }
-  std::cout << toks.has_error() << '\n';
+  std::cout << toks->has_error() << '\n';
 }
 
 auto run_interpreter() -> void {
@@ -28,8 +28,8 @@ auto run_interpreter() -> void {
   for (;;) {
     std::cout << "loxt> ";
     std::getline(std::cin, line);
-    for (auto toks = loxt::lex(line); auto tok : toks) {
-      std::cout << toks.to_string(tok) << std::endl;
+    for (auto toks = loxt::lex(line); auto tok : *toks) {
+      std::cout << toks->to_string(tok) << std::endl;
     }
   }
 }
