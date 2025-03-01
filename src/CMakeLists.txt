@@ -1,6 +1,14 @@
-set(HEADER_LIST "${Loxt_SOURCE_DIR}/include/loxt/lib.hpp")
+set(
+    HEADER_LIST 
+    "${Loxt_SOURCE_DIR}/include/loxt/lexer.hpp"
+    "${Loxt_SOURCE_DIR}/include/loxt/token_kinds.def"
+)
 
-add_library(loxt_library lib.cpp)
+add_library(
+    loxt_library 
+    lexer.cpp
+    ${HEADER_LIST}
+)
 
 target_include_directories(loxt_library PUBLIC "${Loxt_SOURCE_DIR}/include/")
 

@@ -1,0 +1,47 @@
+#ifndef LOXT_TOKEN
+#define LOXT_TOKEN(name)
+#endif
+
+LOXT_TOKEN(LeftParen)
+LOXT_TOKEN(RightParen)
+LOXT_TOKEN(LeftBrace)
+LOXT_TOKEN(RightBrace)
+LOXT_TOKEN(Comma)
+LOXT_TOKEN(Period)
+LOXT_TOKEN(Minus)
+LOXT_TOKEN(Plus)
+LOXT_TOKEN(SemiColon)
+LOXT_TOKEN(BackSlash)
+LOXT_TOKEN(Asterisk)
+LOXT_TOKEN(Bang)
+LOXT_TOKEN(BangEqual)
+LOXT_TOKEN(EqualEqual)
+LOXT_TOKEN(Greater)
+LOXT_TOKEN(GreaterEqual)
+LOXT_TOKEN(Less)
+LOXT_TOKEN(LessEqual)
+
+LOXT_TOKEN(Identifier)
+LOXT_TOKEN(String)
+LOXT_TOKEN(Number)
+
+LOXT_TOKEN(And)
+LOXT_TOKEN(Class)
+LOXT_TOKEN(Else)
+LOXT_TOKEN(False)
+LOXT_TOKEN(Fun)
+LOXT_TOKEN(For)
+LOXT_TOKEN(If)
+LOXT_TOKEN(Nil)
+LOXT_TOKEN(Or)
+LOXT_TOKEN(Print)
+LOXT_TOKEN(Return)
+LOXT_TOKEN(Super)
+LOXT_TOKEN(This)
+LOXT_TOKEN(True)
+LOXT_TOKEN(Var)
+LOXT_TOKEN(While)
+
+LOXT_TOKEN(Eof)
+
+#undef LOXT_TOKEN

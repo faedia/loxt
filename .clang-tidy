@@ -1,5 +1,7 @@
 ---
-Checks: "clang-diagnostic-*,clang-analyzer-*,-*,google-*,modernize-*,performance-*,portability-*,readability*"
+Checks:
+  -*,clang-diagnostic-*,clang-analyzer-*,google-*,modernize-*,performance-*,portability-*,readability*,
+  -modernize-avoid-c-arrays
 WarningsAsErrors: "*"
 HeaderFilterRegex: ""
 FormatStyle: "google"
