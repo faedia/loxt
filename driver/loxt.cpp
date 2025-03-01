@@ -16,7 +16,12 @@ auto run_file(const std::string& path) -> void {
     stream << file.rdbuf();
     contents = stream.str();
   }
-  std::cout << contents;
+  for (auto toks = loxt::lex(contents); auto tok : toks) {
+    std::cout << tok.kind.name() << " " << tok.loc.line << " " << tok.loc.column
+              << " " << *tok.loc.pos << " " << *tok.loc.line_start << " "
+              << tok.identifier << " " << toks.identifier(tok.identifier)
+              << std::endl;
+  }
 }
 
 auto run_interpreter() -> void {
@@ -24,33 +29,13 @@ auto run_interpreter() -> void {
   for (;;) {
     std::cout << "loxt> ";
     std::getline(std::cin, line);
-    std::cout << line;
+    for (auto tok : loxt::lex(line)) {
+      std::cout << tok.kind.name() << std::endl;
+    }
   }
 }
 
 auto main(int argc, char const* argv[]) -> int {
-  std::string prog = "hello world";
-  loxt::TokenList list = loxt::lex(prog);
-  for (auto& tok : list) {
-    std::cout << tok.kind.name() << " " << tok.loc.line << " " << tok.loc.column
-              << " " << list.identifier(tok.identifier) << " " << list.source()
-              << std::endl;
-  }
-
-  {
-    const auto& tok = *list.begin();
-    std::cout << tok.kind.name() << " " << tok.loc.line << " " << tok.loc.column
-              << " " << list.identifier(tok.identifier) << " " << list.source()
-              << std::endl;
-  }
-
-  {
-    const auto& tok = *(list.begin() + 1);
-    std::cout << tok.kind.name() << " " << tok.loc.line << " " << tok.loc.column
-              << " " << list.identifier(tok.identifier) << " " << list.source()
-              << std::endl;
-  }
-
   argparse::ArgumentParser program(argv[0]);
   program.add_argument("file").nargs(argparse::nargs_pattern::optional);
 

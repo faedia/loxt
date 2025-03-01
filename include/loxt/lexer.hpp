@@ -1,6 +1,8 @@
 #pragma once
 
+#include <deque>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -33,9 +35,28 @@ class TokenKind {
   Kind m_Kind;
 };
 
-struct SourceLoc {
+struct SourceLocation {
   int line;
   int column;
+  std::string::const_iterator line_start;
+  std::string::const_iterator pos;
+
+  auto operator++() -> SourceLocation& {
+    if (*pos++ == '\n') {
+      line_start = pos;
+      column = 1;
+      ++line;
+    } else {
+      ++column;
+    }
+    return *this;
+  }
+
+  auto operator++(int) -> SourceLocation {
+    auto old = *this;
+    this->operator++();
+    return old;
+  }
 };
 
 using Identifier = std::size_t;
@@ -43,11 +64,14 @@ using Literal = std::size_t;
 
 struct Token {
   TokenKind kind;
-  SourceLoc loc;
+  SourceLocation loc;
   union {
     Identifier identifier;
     Literal literal;
   };
+
+  Token(TokenKind in_kind, SourceLocation in_loc, std::size_t extra_id)
+      : kind(in_kind), loc(in_loc), identifier(extra_id) {}
 };
 
 class TokenList {
@@ -60,7 +84,8 @@ class TokenList {
   [[nodiscard]] auto end() -> Iterator { return m_Tokens.end(); }
   [[nodiscard]] auto end() const -> ConstIterator { return m_Tokens.end(); }
 
-  [[nodiscard]] auto identifier(Identifier ident) const -> const std::string& {
+  [[nodiscard]] auto identifier(Identifier ident) const
+      -> const std::string_view& {
     return m_Identifiers[ident];
   }
 
@@ -70,8 +95,8 @@ class TokenList {
   explicit TokenList(const std::string& source) : m_Source(source) {}
 
   std::vector<Token> m_Tokens;
-  std::unordered_map<std::string, Identifier> m_IdentifierMap;
-  std::vector<std::string> m_Identifiers;
+  std::unordered_map<std::string_view, Identifier> m_IdentifierMap;
+  std::vector<std::string_view> m_Identifiers;
 
   const std::string& m_Source;
 
