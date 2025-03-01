@@ -14,15 +14,29 @@ class PrinterVisitor : public Visitor {
 
   void visit(BinaryExpr& expr) override {
     std::cout << '(';
-    std::cout << static_cast<int>(expr.kind()) << ' ';
+    std::cout << static_cast<int>(expr.op_kind()) << ' ';
     expr.lhs().accept(*this);
     std::cout << ' ';
     expr.rhs().accept(*this);
     std::cout << ')';
   }
 
-  void visit(NumberExpr& expr) override {
+  void visit(ParenExpr& expr) override {
+    std::cout << '(';
+    expr.expr().accept(*this);
+    std::cout << ')';
+  }
+
+  void visit(LiteralExpr& expr) override {
     std::cout << tokens_.number_literal(expr.literal());
+  }
+
+  void visit(UnaryExpr& expr) override {
+    std::cout << '(';
+    std::cout << static_cast<int>(expr.op_kind()) << ' ';
+    expr.expr().accept(*this);
+    std::cout << ' ';
+    std::cout << ')';
   }
 
  private:
