@@ -7,6 +7,7 @@
 
 namespace loxt {
 
+namespace {
 auto report(SourceLocation loc, const std::string& error_text) -> void {
   fmt::print("{}:{}: Error: {}\n", loc.line, loc.column, error_text);
 }
@@ -20,6 +21,23 @@ const std::unordered_map<std::string_view, const TokenKind> Keywords = {
 #define LOXT_KEYWORD_TOKEN(name, spelling) {spelling, TokenKind::name()},
 #include <loxt/token_kinds.def>
 };
+}  // namespace
+
+auto SourceLocation::operator++() -> SourceLocation& {
+  if (*pos++ == '\n') {
+    column = 1;
+    ++line;
+  } else {
+    ++column;
+  }
+  return *this;
+}
+
+auto SourceLocation::operator++(int) -> SourceLocation {
+  auto old = *this;
+  this->operator++();
+  return old;
+}
 
 auto TokenKind::name() const -> const std::string& {
   return TokenNames[static_cast<int>(m_Kind)];
