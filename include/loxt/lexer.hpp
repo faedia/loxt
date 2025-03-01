@@ -89,7 +89,18 @@ class TokenList {
     return m_Identifiers[ident];
   }
 
+  [[nodiscard]] auto string_literal(Literal literal) const
+      -> const std::string& {
+    return m_StringLiteral[literal];
+  }
+
+  [[nodiscard]] auto number_literal(Literal literal) const -> uint64_t {
+    return m_NumberLiteral[literal];
+  }
+
   [[nodiscard]] auto source() const -> const std::string& { return m_Source; }
+
+  auto to_string(const Token& token) const -> std::string;
 
  private:
   explicit TokenList(const std::string& source) : m_Source(source) {}
@@ -97,6 +108,8 @@ class TokenList {
   std::vector<Token> m_Tokens;
   std::unordered_map<std::string_view, Identifier> m_IdentifierMap;
   std::vector<std::string_view> m_Identifiers;
+  std::vector<std::string> m_StringLiteral;
+  std::vector<uint64_t> m_NumberLiteral;
 
   const std::string& m_Source;
 

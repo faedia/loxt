@@ -19,6 +19,27 @@ auto TokenKind::name() const -> const std::string& {
   return TokenNames[static_cast<int>(m_Kind)];
 }
 
+auto TokenList::to_string(const Token& token) const -> std::string {
+  std::string str = "{kind: " + token.kind.name() +
+                    ", line: " + std::to_string(token.loc.line) +
+                    ", column: " + std::to_string(token.loc.column);
+
+  if (token.kind == TokenKind::Identifier()) {
+    str += ", identifier: " + std::string(identifier(token.identifier));
+  }
+
+  if (token.kind == TokenKind::String()) {
+    str += ", literal: \"" + string_literal(token.literal) + "\"";
+  }
+
+  if (token.kind == TokenKind::Number()) {
+    str += ", literal: " + std::to_string(number_literal(token.literal));
+  }
+
+  str += "}";
+  return str;
+}
+
 auto match(char expected, const std::string& source, SourceLocation& loc)
     -> bool {
   if (loc.pos == source.end()) {
@@ -98,7 +119,7 @@ auto lex(const std::string& source) -> TokenList {
         break;
       case '/':
         if (match('/', source, loc)) {
-          while (*loc.pos != '\n' && loc.pos != source.end()) {
+          while (loc.pos != source.end() && *loc.pos != '\n') {
             ++loc;
           }
         } else {
@@ -107,7 +128,7 @@ auto lex(const std::string& source) -> TokenList {
         }
         break;
       case '"': {
-        while (*loc.pos != '"' && loc.pos != source.end()) {
+        while (loc.pos != source.end() && *loc.pos != '"') {
           ++loc;
         }
 
@@ -117,28 +138,40 @@ auto lex(const std::string& source) -> TokenList {
         }
 
         ++loc;
-        std::string_view str(start_loc.pos + 1, loc.pos - 1);
-        std::cout << str << std::endl;
-        list.m_Tokens.emplace_back(Token{TokenKind::String(), start_loc, 0});
+        list.m_Tokens.emplace_back(
+            Token{TokenKind::String(), start_loc, list.m_StringLiteral.size()});
+        list.m_StringLiteral.emplace_back(start_loc.pos + 1, loc.pos - 1);
       } break;
       default:
-        if (static_cast<bool>(std::isalpha(chr))) {
-          while (static_cast<bool>(std::isalnum(*loc.pos))) {
+        if (static_cast<bool>(std::isdigit(chr))) {
+          while (loc.pos != source.end() &&
+                 static_cast<bool>(std::isdigit(*loc.pos))) {
             ++loc;
           }
+
+          list.m_Tokens.emplace_back(Token{TokenKind::Number(), start_loc,
+                                           list.m_NumberLiteral.size()});
+          list.m_NumberLiteral.emplace_back(
+              std::stoull(std::string(start_loc.pos, loc.pos)));
+        } else if (static_cast<bool>(std::isalpha(chr))) {
+          while (loc.pos != source.end() &&
+                 static_cast<bool>(std::isalnum(*loc.pos))) {
+            ++loc;
+          }
+
           std::string_view identifier_str{start_loc.pos, loc.pos};
           auto keyword_iter = Keywords.find(identifier_str);
           if (keyword_iter == Keywords.end()) {
-            auto identifer_iter = list.m_IdentifierMap.find(identifier_str);
-            Identifier identifer = list.m_Identifiers.size();
-            if (identifer_iter == list.m_IdentifierMap.end()) {
-              list.m_IdentifierMap.emplace(identifier_str, identifer);
+            auto identifier_iter = list.m_IdentifierMap.find(identifier_str);
+            Identifier identifier = list.m_Identifiers.size();
+            if (identifier_iter == list.m_IdentifierMap.end()) {
+              list.m_IdentifierMap.emplace(identifier_str, identifier);
               list.m_Identifiers.emplace_back(identifier_str);
             } else {
-              identifer = identifer_iter->second;
+              identifier = identifier_iter->second;
             }
             list.m_Tokens.emplace_back(
-                Token{TokenKind::Identifier(), start_loc, identifer});
+                Token{TokenKind::Identifier(), start_loc, identifier});
           } else {
             list.m_Tokens.emplace_back(
                 Token{keyword_iter->second, start_loc, 0});

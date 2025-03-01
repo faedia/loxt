@@ -17,10 +17,7 @@ auto run_file(const std::string& path) -> void {
     contents = stream.str();
   }
   for (auto toks = loxt::lex(contents); auto tok : toks) {
-    std::cout << tok.kind.name() << " " << tok.loc.line << " " << tok.loc.column
-              << " " << *tok.loc.pos << " " << *tok.loc.line_start << " "
-              << tok.identifier << " " << toks.identifier(tok.identifier)
-              << std::endl;
+    std::cout << toks.to_string(tok) << std::endl;
   }
 }
 
@@ -29,8 +26,8 @@ auto run_interpreter() -> void {
   for (;;) {
     std::cout << "loxt> ";
     std::getline(std::cin, line);
-    for (auto tok : loxt::lex(line)) {
-      std::cout << tok.kind.name() << std::endl;
+    for (auto toks = loxt::lex(line); auto tok : toks) {
+      std::cout << toks.to_string(tok) << std::endl;
     }
   }
 }
