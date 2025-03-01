@@ -32,7 +32,7 @@ jobs:
       - name: Test
         # Execute tests defined by the CMake configuration.
         # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-        run: ${{github.workspace}}/build/test/loxt_test --reporter JUnit::out=${{github.workspace}}/test_results.xml --reporter console::out=-::colour-mode=ansi -d yes -s
+        run: ${{github.workspace}}/build/test/loxt_test --gtest_output=xml:{{github.workspace}}/test_results.xml
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: always()
