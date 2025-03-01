@@ -19,6 +19,8 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(CMAKE_CXX_FLAGS_DEBUG "-g -Og")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+    set (CMAKE_CXX_STANDARD 20)
+
     include(CTest)
 
     find_package(Doxygen)

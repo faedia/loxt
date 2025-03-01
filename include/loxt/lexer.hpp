@@ -62,14 +62,14 @@ using Literal = unsigned int;
 
 struct Token {
   TokenKind kind;
-  SourceLocation loc;
   union {
     Identifier identifier;
     Literal literal;
   };
+  SourceLocation loc;
 
   Token(TokenKind in_kind, SourceLocation in_loc, unsigned int extra_id)
-      : kind(in_kind), loc(in_loc), identifier(extra_id) {}
+      : kind(in_kind), identifier(extra_id), loc(in_loc) {}
 };
 
 class TokenList {
@@ -111,7 +111,7 @@ class TokenList {
   std::vector<std::string> m_StringLiteral;
   std::vector<uint64_t> m_NumberLiteral;
 
-  bool m_HasError;
+  bool m_HasError = false;
 
   const std::string& m_Source;
 

@@ -16,9 +16,11 @@ auto run_file(const std::string& path) -> void {
     stream << file.rdbuf();
     contents = stream.str();
   }
-  for (auto toks = loxt::lex(contents); auto tok : toks) {
-    std::cout << toks.to_string(tok) << std::endl;
-  }
+  const auto& toks = loxt::lex(contents);
+  // for (auto toks = loxt::lex(contents); auto tok : toks) {
+  //   // std::cout << toks.to_string(tok) << std::endl;
+  // }
+  std::cout << toks.has_error() << '\n';
 }
 
 auto run_interpreter() -> void {

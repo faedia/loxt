@@ -1,4 +1,8 @@
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch_all.hpp>
+#include <gtest/gtest.h>
 
-TEST_CASE("Test") { REQUIRE(false == false); }
+#include "loxt/lexer.hpp"
+
+TEST(HelloTest, BasicAssertions) {
+  EXPECT_EQ(loxt::TokenKind::And(), loxt::TokenKind::And());
+  EXPECT_EQ(loxt::TokenKind::And(), loxt::TokenKind::If());
+}
