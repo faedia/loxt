@@ -82,6 +82,8 @@ class TokenList {
   [[nodiscard]] auto end() -> Iterator { return m_Tokens.end(); }
   [[nodiscard]] auto end() const -> ConstIterator { return m_Tokens.end(); }
 
+  [[nodiscard]] auto size() const -> std::size_t { return m_Tokens.size(); }
+
   [[nodiscard]] auto identifier(Identifier ident) const
       -> const std::string_view& {
     return m_Identifiers[ident];

@@ -59,7 +59,6 @@ inline auto match(char expected, const std::string& source, SourceLocation& loc)
 }
 
 auto lex(const std::string& source) -> TokenList {
-  std::cout << sizeof(Token) << std::endl;
   TokenList list(source);
 
   SourceLocation loc{1, 1, source.begin()};
@@ -69,60 +68,58 @@ auto lex(const std::string& source) -> TokenList {
     char chr = *(loc++).pos;
     switch (chr) {
       case '(':
-        list.m_Tokens.emplace_back(Token{TokenKind::LeftParen(), start_loc, 0});
+        list.m_Tokens.emplace_back(TokenKind::LeftParen(), start_loc, 0);
         break;
       case ')':
-        list.m_Tokens.emplace_back(
-            Token{TokenKind::RightParen(), start_loc, 0});
+        list.m_Tokens.emplace_back(TokenKind::RightParen(), start_loc, 0);
         break;
       case '{':
-        list.m_Tokens.emplace_back(Token{TokenKind::LeftBrace(), start_loc, 0});
+        list.m_Tokens.emplace_back(TokenKind::LeftBrace(), start_loc, 0);
         break;
       case '}':
-        list.m_Tokens.emplace_back(
-            Token{TokenKind::RightBrace(), start_loc, 0});
+        list.m_Tokens.emplace_back(TokenKind::RightBrace(), start_loc, 0);
         break;
       case ',':
-        list.m_Tokens.emplace_back(Token{TokenKind::Comma(), start_loc, 0});
+        list.m_Tokens.emplace_back(TokenKind::Comma(), start_loc, 0);
         break;
       case '.':
-        list.m_Tokens.emplace_back(Token{TokenKind::Period(), start_loc, 0});
+        list.m_Tokens.emplace_back(TokenKind::Period(), start_loc, 0);
         break;
       case '-':
-        list.m_Tokens.emplace_back(Token{TokenKind::Minus(), start_loc, 0});
+        list.m_Tokens.emplace_back(TokenKind::Minus(), start_loc, 0);
         break;
       case '+':
-        list.m_Tokens.emplace_back(Token{TokenKind::Plus(), start_loc, 0});
+        list.m_Tokens.emplace_back(TokenKind::Plus(), start_loc, 0);
         break;
       case ';':
-        list.m_Tokens.emplace_back(Token{TokenKind::SemiColon(), start_loc, 0});
+        list.m_Tokens.emplace_back(TokenKind::SemiColon(), start_loc, 0);
         break;
       case '*':
-        list.m_Tokens.emplace_back(Token{TokenKind::Asterisk(), start_loc, 0});
+        list.m_Tokens.emplace_back(TokenKind::Asterisk(), start_loc, 0);
         break;
       case '!':
-        list.m_Tokens.emplace_back(Token{match('=', source, loc)
-                                             ? TokenKind::BangEqual()
-                                             : TokenKind::Bang(),
-                                         start_loc, 0});
+        list.m_Tokens.emplace_back(match('=', source, loc)
+                                       ? TokenKind::BangEqual()
+                                       : TokenKind::Bang(),
+                                   start_loc, 0);
         break;
       case '=':
-        list.m_Tokens.emplace_back(Token{match('=', source, loc)
-                                             ? TokenKind::EqualEqual()
-                                             : TokenKind::Equal(),
-                                         start_loc, 0});
+        list.m_Tokens.emplace_back(match('=', source, loc)
+                                       ? TokenKind::EqualEqual()
+                                       : TokenKind::Equal(),
+                                   start_loc, 0);
         break;
       case '<':
-        list.m_Tokens.emplace_back(Token{match('=', source, loc)
-                                             ? TokenKind::LessEqual()
-                                             : TokenKind::Less(),
-                                         start_loc, 0});
+        list.m_Tokens.emplace_back(match('=', source, loc)
+                                       ? TokenKind::LessEqual()
+                                       : TokenKind::Less(),
+                                   start_loc, 0);
         break;
       case '>':
-        list.m_Tokens.emplace_back(Token{match('=', source, loc)
-                                             ? TokenKind::GreaterEqual()
-                                             : TokenKind::Greater(),
-                                         start_loc, 0});
+        list.m_Tokens.emplace_back(match('=', source, loc)
+                                       ? TokenKind::GreaterEqual()
+                                       : TokenKind::Greater(),
+                                   start_loc, 0);
         break;
       case '/':
         if (match('/', source, loc)) {
@@ -130,8 +127,7 @@ auto lex(const std::string& source) -> TokenList {
             ++loc;
           }
         } else {
-          list.m_Tokens.emplace_back(
-              Token{TokenKind::BackSlash(), start_loc, 0});
+          list.m_Tokens.emplace_back(TokenKind::BackSlash(), start_loc, 0);
         }
         break;
       case '"':
@@ -140,14 +136,14 @@ auto lex(const std::string& source) -> TokenList {
         }
 
         if (loc.pos == source.end()) {
-          list.m_Tokens.emplace_back(Token{TokenKind::Error(), start_loc, 0});
+          list.m_Tokens.emplace_back(TokenKind::Error(), start_loc, 0);
           report(start_loc, "String is unterminated");
           list.m_HasError = true;
         } else {
           ++loc;
           list.m_Tokens.emplace_back(
-              Token{TokenKind::String(), start_loc,
-                    static_cast<Literal>(list.m_StringLiteral.size())});
+              TokenKind::String(), start_loc,
+              static_cast<Literal>(list.m_StringLiteral.size()));
           list.m_StringLiteral.emplace_back(start_loc.pos + 1, loc.pos - 1);
         }
         break;
@@ -159,8 +155,8 @@ auto lex(const std::string& source) -> TokenList {
           }
 
           list.m_Tokens.emplace_back(
-              Token{TokenKind::Number(), start_loc,
-                    static_cast<Literal>(list.m_NumberLiteral.size())});
+              TokenKind::Number(), start_loc,
+              static_cast<Literal>(list.m_NumberLiteral.size()));
           list.m_NumberLiteral.emplace_back(
               std::stoull(std::string(start_loc.pos, loc.pos)));
         } else if (static_cast<bool>(std::isalpha(chr))) {
@@ -180,24 +176,19 @@ auto lex(const std::string& source) -> TokenList {
             } else {
               identifier = identifier_iter->second;
             }
-            list.m_Tokens.emplace_back(
-                Token{TokenKind::Identifier(), start_loc, identifier});
+            list.m_Tokens.emplace_back(TokenKind::Identifier(), start_loc,
+                                       identifier);
           } else {
-            list.m_Tokens.emplace_back(
-                Token{keyword_iter->second, start_loc, 0});
+            list.m_Tokens.emplace_back(keyword_iter->second, start_loc, 0);
           }
         } else if (std::isspace(chr) == 0) {
-          list.m_Tokens.emplace_back(Token{TokenKind::Error(), start_loc, 0});
+          list.m_Tokens.emplace_back(TokenKind::Error(), start_loc, 0);
           report(start_loc, fmt::format("Unrecognized character '{}'", chr));
           list.m_HasError = true;
         }
     }
   }
-  list.m_Tokens.emplace_back(Token{TokenKind::Eof(), loc, 0});
-  list.m_Tokens.shrink_to_fit();
-  list.m_Identifiers.shrink_to_fit();
-  list.m_StringLiteral.shrink_to_fit();
-  list.m_NumberLiteral.shrink_to_fit();
+  list.m_Tokens.emplace_back(TokenKind::Eof(), loc, 0);
   return list;
 }
 

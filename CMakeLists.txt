@@ -7,7 +7,7 @@ project(
     LANGUAGES CXX
 )
 
-if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(CMAKE_CXX_EXTENSIONS OFF)
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -15,15 +15,12 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         set(CMAKE_BUILD_TYPE Release)
     endif()
 
-    set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-    set(CMAKE_CXX_FLAGS_DEBUG "-g -Og")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-
-    set (CMAKE_CXX_STANDARD 20)
+    set(CMAKE_CXX_STANDARD 20)
 
     include(CTest)
 
     find_package(Doxygen)
+
     if(Doxygen_FOUND)
         add_subdirectory(docs)
     else()
@@ -45,9 +42,8 @@ else()
     message(WARNING "clang-tidy not found.")
 endif()
 
-
 set(
-    DO_CLANG_TIDY
+    CLANG_TIDY
     "${CLANG_TIDY_EXE};--config-file=${Loxt_SOURCE_DIR}/.clang-tidy;--header-filter=${Loxt_SOURCE_DIR}/include/.*"
 )
 
