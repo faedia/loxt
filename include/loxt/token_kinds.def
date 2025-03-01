@@ -47,6 +47,8 @@ LOXT_KEYWORD_TOKEN(True, "true")
 LOXT_KEYWORD_TOKEN(Var, "var")
 LOXT_KEYWORD_TOKEN(While, "while")
 
+LOXT_TOKEN(Error)
+
 LOXT_TOKEN(Eof)
 
 #undef LOXT_TOKEN

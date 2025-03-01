@@ -9,7 +9,7 @@
 namespace loxt {
 
 class TokenKind {
-  enum class Kind {
+  enum class Kind : uint8_t {
 #define LOXT_TOKEN(name) name,
 #include "token_kinds.def"
   };
@@ -38,12 +38,10 @@ class TokenKind {
 struct SourceLocation {
   int line;
   int column;
-  std::string::const_iterator line_start;
   std::string::const_iterator pos;
 
   auto operator++() -> SourceLocation& {
     if (*pos++ == '\n') {
-      line_start = pos;
       column = 1;
       ++line;
     } else {
@@ -59,8 +57,8 @@ struct SourceLocation {
   }
 };
 
-using Identifier = std::size_t;
-using Literal = std::size_t;
+using Identifier = unsigned int;
+using Literal = unsigned int;
 
 struct Token {
   TokenKind kind;
@@ -70,7 +68,7 @@ struct Token {
     Literal literal;
   };
 
-  Token(TokenKind in_kind, SourceLocation in_loc, std::size_t extra_id)
+  Token(TokenKind in_kind, SourceLocation in_loc, unsigned int extra_id)
       : kind(in_kind), loc(in_loc), identifier(extra_id) {}
 };
 
@@ -100,7 +98,9 @@ class TokenList {
 
   [[nodiscard]] auto source() const -> const std::string& { return m_Source; }
 
-  auto to_string(const Token& token) const -> std::string;
+  [[nodiscard]] auto to_string(const Token& token) const -> std::string;
+
+  [[nodiscard]] auto has_error() const -> bool { return m_HasError; }
 
  private:
   explicit TokenList(const std::string& source) : m_Source(source) {}
@@ -110,6 +110,8 @@ class TokenList {
   std::vector<std::string_view> m_Identifiers;
   std::vector<std::string> m_StringLiteral;
   std::vector<uint64_t> m_NumberLiteral;
+
+  bool m_HasError;
 
   const std::string& m_Source;
 

@@ -20,3 +20,5 @@ source_group(
     FILES ${HEADER_LIST}
 )
 set_target_properties(loxt_library PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY}")
+
+target_link_libraries(loxt_library PRIVATE fmt::fmt)

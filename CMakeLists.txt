@@ -49,6 +49,12 @@ set(
     "${CLANG_TIDY_EXE};--config-file=${Loxt_SOURCE_DIR}/.clang-tidy;--header-filter=${Loxt_SOURCE_DIR}/include/.*"
 )
 
+FetchContent_Declare(
+    fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG 9.1.0
+)
+FetchContent_MakeAvailable(fmt)
 
 add_subdirectory(src)
 add_subdirectory(driver)

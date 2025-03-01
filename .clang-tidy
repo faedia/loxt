@@ -1,10 +1,10 @@
 ---
 Checks:
   -*,clang-diagnostic-*,clang-analyzer-*,google-*,modernize-*,performance-*,portability-*,readability*,
+  -clang-analyzer-optin*,
   -modernize-avoid-c-arrays,
   -readability-function-cognitive-complexity
 WarningsAsErrors: "*"
-HeaderFilterRegex: ""
 FormatStyle: "google"
 CheckOptions:
   - key: performance-unnecessary-copy-initialization.ExcludedContainerTypes
