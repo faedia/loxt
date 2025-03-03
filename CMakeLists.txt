@@ -46,15 +46,10 @@ endif()
 
 set(
     CLANG_TIDY
-    "${CLANG_TIDY_EXE};--config-file=${Loxt_SOURCE_DIR}/.clang-tidy;--header-filter=${Loxt_SOURCE_DIR}/include/.*"
+    "${CLANG_TIDY_EXE};--config-file=${Loxt_SOURCE_DIR}/.clang-tidy;--header-filter=${Loxt_SOURCE_DIR}/(include|treeceratops)/.*"
 )
 
-FetchContent_Declare(
-    treeceratops
-    GIT_REPOSITORY https://github.com/faedia/treeceratops.git
-    GIT_TAG main
-)
-FetchContent_MakeAvailable(treeceratops)
+add_subdirectory(treeceratops)
 
 add_subdirectory(src)
 add_subdirectory(driver)

@@ -180,7 +180,7 @@ auto Parser::primary(ExprTree::iterator parent) -> ExprTree::iterator {
       ++current_;
       return parent;
     }
-    throw "hanging parent";
+    throw "hanging paren";
   }
 
   throw "Failed to parse expr";
